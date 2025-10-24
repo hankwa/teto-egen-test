@@ -6,11 +6,13 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { surveyQuestions, answerOptions } from "@shared/schema";
 import type { SurveyAnswer } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
+import { useI18n } from "@/i18n/LanguageContext";
 
 export default function SurveyPage() {
   const [, setLocation] = useLocation();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<SurveyAnswer[]>([]);
+  const { t } = useI18n();
 
   const handleAnswer = (answer: "A" | "B" | "C" | "D") => {
     const newAnswers = [
@@ -62,10 +64,10 @@ export default function SurveyPage() {
           </div>
           
           <h1 className="text-2xl md:text-3xl font-semibold text-foreground" data-testid="text-survey-title">
-            심리 설문
+            {t('survey', 'title')}
           </h1>
           <p className="text-base text-muted-foreground" data-testid="text-question-progress">
-            {currentQuestion + 1} / {surveyQuestions.length}
+            {t('survey', 'progress', { current: String(currentQuestion + 1), total: String(surveyQuestions.length) })}
           </p>
         </div>
 
@@ -112,7 +114,7 @@ export default function SurveyPage() {
             data-testid="button-back"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            이전
+            {t('common', 'previous')}
           </Button>
           <div className="flex gap-1">
             {surveyQuestions.map((_, index) => (
