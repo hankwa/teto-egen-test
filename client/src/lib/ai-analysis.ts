@@ -209,37 +209,37 @@ function createPrompt(
 function calculateRecommendedAnimals(personalityType: PersonalityType, gender: Gender): AnimalCompatibility[] {
   const animalCompatibilityData: Record<PersonalityType, Record<AnimalType, { score: number; reason: string }>> = {
     teto: {
-      dog: { score: 75, reason: "충성스럽고 신뢰할 수 있는 관계를 만들 수 있어요" },
-      cat: { score: 85, reason: "서로의 독립성을 존중하며 안정적인 관계를 유지해요" },
-      fox: { score: 80, reason: "영리하고 전략적인 사고로 서로를 이해합니다" },
-      rabbit: { score: 65, reason: "차분함과 섬세함이 조화를 이룹니다" },
-      bear: { score: 90, reason: "든든하고 믿음직한 파트너십을 형성해요" },
-      deer: { score: 70, reason: "우아함과 이성적 판단이 잘 어울립니다" },
+      dog: { score: 68, reason: "충성스럽고 신뢰할 수 있는 관계를 만들 수 있어요" },
+      cat: { score: 88, reason: "서로의 독립성을 존중하며 안정적인 관계를 유지해요" },
+      fox: { score: 85, reason: "영리하고 전략적인 사고로 서로를 이해합니다" },
+      rabbit: { score: 52, reason: "차분함과 섬세함이 조화를 이룹니다" },
+      bear: { score: 92, reason: "든든하고 믿음직한 파트너십을 형성해요" },
+      deer: { score: 72, reason: "우아함과 이성적 판단이 잘 어울립니다" },
     },
     tegen: {
-      dog: { score: 88, reason: "밝고 긍정적인 에너지가 완벽하게 조화를 이뤄요" },
+      dog: { score: 90, reason: "밝고 긍정적인 에너지가 완벽하게 조화를 이뤄요" },
       cat: { score: 75, reason: "균형잡힌 관계로 서로를 보완합니다" },
-      fox: { score: 92, reason: "유연한 사고와 적응력이 최고의 궁합이에요" },
-      rabbit: { score: 85, reason: "부드럽고 따뜻한 관계를 만들어갑니다" },
-      bear: { score: 80, reason: "안정감과 활력이 조화롭게 어우러져요" },
-      deer: { score: 90, reason: "우아하고 조화로운 관계를 형성해요" },
+      fox: { score: 95, reason: "유연한 사고와 적응력이 최고의 궁합이에요" },
+      rabbit: { score: 82, reason: "부드럽고 따뜻한 관계를 만들어갑니다" },
+      bear: { score: 78, reason: "안정감과 활력이 조화롭게 어우러져요" },
+      deer: { score: 88, reason: "우아하고 조화로운 관계를 형성해요" },
     },
     egen: {
-      dog: { score: 95, reason: "따뜻한 마음과 충성심이 완벽한 조화를 이뤄요" },
-      cat: { score: 70, reason: "감성을 이해하고 존중하는 관계예요" },
-      fox: { score: 75, reason: "영리함과 감성이 균형을 맞춥니다" },
-      rabbit: { score: 90, reason: "순수하고 따뜻한 마음이 깊이 공감해요" },
+      dog: { score: 96, reason: "따뜻한 마음과 충성심이 완벽한 조화를 이뤄요" },
+      cat: { score: 58, reason: "감성을 이해하고 존중하는 관계예요" },
+      fox: { score: 65, reason: "영리함과 감성이 균형을 맞춥니다" },
+      rabbit: { score: 93, reason: "순수하고 따뜻한 마음이 깊이 공감해요" },
       bear: { score: 85, reason: "포근하고 안정적인 관계를 만들어요" },
-      deer: { score: 88, reason: "섬세하고 우아한 감성이 어울립니다" },
+      deer: { score: 89, reason: "섬세하고 우아한 감성이 어울립니다" },
     },
   };
 
   const compatibilityList = animalCompatibilityData[personalityType];
-  const genderBonus = gender === "male" ? { dog: 5, rabbit: -3, bear: 3 } : { cat: 5, deer: 5, fox: 3 };
+  const genderBonus = gender === "male" ? { dog: 3, rabbit: -5, bear: 4, cat: -2 } : { cat: 4, deer: 5, fox: 3, dog: -2 };
 
   const animalScores: AnimalCompatibility[] = Object.entries(compatibilityList).map(([animal, data]) => ({
     animalType: animal as AnimalType,
-    score: Math.max(60, Math.min(100, data.score + (genderBonus[animal as keyof typeof genderBonus] || 0) + Math.floor(Math.random() * 6 - 3))),
+    score: Math.max(45, Math.min(98, data.score + (genderBonus[animal as keyof typeof genderBonus] || 0) + Math.floor(Math.random() * 3 - 1))),
     reason: data.reason,
   }));
 
@@ -248,20 +248,20 @@ function calculateRecommendedAnimals(personalityType: PersonalityType, gender: G
 
 function calculateCompatibilityScores(personalityType: PersonalityType, gender: Gender): CompatibilityScore {
   const baseScores: Record<PersonalityType, { teto: number; tegen: number; egen: number }> = {
-    teto: { teto: 70, tegen: 85, egen: 45 },
-    tegen: { teto: 85, tegen: 75, egen: 80 },
-    egen: { teto: 45, tegen: 80, egen: 90 },
+    teto: { teto: 72, tegen: 88, egen: 35 },
+    tegen: { teto: 86, tegen: 78, egen: 82 },
+    egen: { teto: 32, tegen: 84, egen: 92 },
   };
 
-  const genderAdjustment = gender === "male" ? { teto: -5, tegen: 0, egen: 5 } : { teto: 5, tegen: 0, egen: -5 };
+  const genderAdjustment = gender === "male" ? { teto: -6, tegen: 1, egen: 6 } : { teto: 6, tegen: -1, egen: -6 };
   
   const scores = baseScores[personalityType];
   const recommendedAnimals = calculateRecommendedAnimals(personalityType, gender);
 
   return {
-    teto: Math.max(10, Math.min(100, scores.teto + genderAdjustment.teto + Math.floor(Math.random() * 10 - 5))),
-    tegen: Math.max(10, Math.min(100, scores.tegen + genderAdjustment.tegen + Math.floor(Math.random() * 10 - 5))),
-    egen: Math.max(10, Math.min(100, scores.egen + genderAdjustment.egen + Math.floor(Math.random() * 10 - 5))),
+    teto: Math.max(30, Math.min(95, scores.teto + genderAdjustment.teto + Math.floor(Math.random() * 5 - 2))),
+    tegen: Math.max(30, Math.min(95, scores.tegen + genderAdjustment.tegen + Math.floor(Math.random() * 5 - 2))),
+    egen: Math.max(30, Math.min(95, scores.egen + genderAdjustment.egen + Math.floor(Math.random() * 5 - 2))),
     recommendedAnimals,
   };
 }
