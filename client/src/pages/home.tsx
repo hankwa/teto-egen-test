@@ -21,8 +21,29 @@ export default function Home() {
         <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed" data-testid="text-app-description">
           당신의 얼굴 특징과 심리 설문을 분석하여 고유한 성격을 알려드립니다.
           <br />
-          재미있고 흥미로운 AI 분석으로 자신에 대한 새로운 인사이트를 발견하세요.
+          <span className="text-primary font-semibold">최신 AI 기술</span>을 활용한 정교한 분석으로 자신에 대한 새로운 인사이트를 발견하세요.
         </p>
+
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-6 max-w-xl mx-auto border border-primary/20">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">AI 기반 분석 시스템</h2>
+          </div>
+          <ul className="text-sm text-muted-foreground space-y-2 text-left">
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">✓</span>
+              <span>브라우저 내장 AI로 얼굴 특징 실시간 분석</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">✓</span>
+              <span>고급 언어 모델을 활용한 성격 리포트 생성</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">✓</span>
+              <span>심리학 기반 설문과 관상학 분석의 결합</span>
+            </li>
+          </ul>
+        </div>
 
         <div className="pt-4">
           <Link href="/upload">

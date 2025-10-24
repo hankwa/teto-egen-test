@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Share2, Download, Home, Twitter, History } from "lucide-react";
+import { Share2, Download, Home, Twitter, History, Sparkles } from "lucide-react";
 import { SiInstagram, SiFacebook } from "react-icons/si";
 import { motion } from "framer-motion";
 import html2canvas from "html2canvas";
@@ -140,9 +140,15 @@ export default function ResultPage() {
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             <Card className="p-6 md:p-8 rounded-2xl shadow-md border border-card-border">
-              <h2 className="text-xl font-semibold text-foreground mb-4" data-testid="text-section-personality">
-                성격 요약
-              </h2>
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-xl font-semibold text-foreground" data-testid="text-section-personality">
+                  성격 요약
+                </h2>
+                <Badge variant="secondary" className="text-xs">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI 분석
+                </Badge>
+              </div>
               <p className="text-base text-foreground leading-relaxed whitespace-pre-line" data-testid="text-personality-summary">
                 {report.personalitySummary}
               </p>
@@ -155,9 +161,15 @@ export default function ResultPage() {
             transition={{ delay: 0.6, duration: 0.6 }}
           >
             <Card className="p-6 md:p-8 rounded-2xl shadow-md border border-card-border">
-              <h2 className="text-xl font-semibold text-foreground mb-4" data-testid="text-section-physiognomy">
-                관상학적 특징
-              </h2>
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-xl font-semibold text-foreground" data-testid="text-section-physiognomy">
+                  관상학적 특징
+                </h2>
+                <Badge variant="secondary" className="text-xs">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI 분석
+                </Badge>
+              </div>
               <p className="text-base text-foreground leading-relaxed whitespace-pre-line" data-testid="text-physiognomy">
                 {report.physiognomyAnalysis}
               </p>

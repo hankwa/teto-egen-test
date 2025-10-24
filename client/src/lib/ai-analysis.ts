@@ -18,10 +18,10 @@ let engine: webllm.MLCEngine | null = null;
 
 export function calculateTraitScores(answers: SurveyAnswer[]): TraitScores {
   const traitMapping = [
-    { ids: [1, 5, 9], trait: 'extraversion' },
-    { ids: [2, 6, 10], trait: 'thinking' },
-    { ids: [3, 7], trait: 'judging' },
-    { ids: [4, 8], trait: 'sensing' },
+    { ids: [1, 5, 9], trait: 'extraversion', reverse: false },
+    { ids: [2, 6, 10], trait: 'thinking', reverse: false },
+    { ids: [3, 7], trait: 'judging', reverse: false },
+    { ids: [4, 8], trait: 'sensing', reverse: true },
   ];
 
   const scores: Record<string, number> = {
@@ -31,16 +31,26 @@ export function calculateTraitScores(answers: SurveyAnswer[]): TraitScores {
     judging: 0,
   };
 
-  traitMapping.forEach(({ ids, trait }) => {
+  traitMapping.forEach(({ ids, trait, reverse }) => {
     let traitScore = 0;
+    let questionCount = 0;
+    
     ids.forEach(id => {
       const answer = answers.find(a => a.questionId === id);
       if (answer) {
         const weight = answerOptions.find(opt => opt.value === answer.answer)?.weight || 0;
-        traitScore += weight;
+        traitScore += reverse ? -weight : weight;
+        questionCount++;
       }
     });
-    scores[trait] = Math.max(0, Math.min(100, 50 + (traitScore / ids.length) * 25));
+    
+    if (questionCount > 0) {
+      const avgScore = traitScore / questionCount;
+      const normalizedScore = 50 + (avgScore * 12.5);
+      scores[trait] = Math.max(0, Math.min(100, normalizedScore));
+    } else {
+      scores[trait] = 50;
+    }
   });
 
   return {
