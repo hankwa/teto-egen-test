@@ -9,7 +9,7 @@ import { useI18n } from "@/i18n/LanguageContext";
 export default function AnalysisPage() {
   const [, setLocation] = useLocation();
   const [progress, setProgress] = useState(0);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [statusText, setStatusText] = useState("");
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function AnalysisPage() {
         setProgress(50);
         setStatusText(t('analysis', 'loadingWebLLM'));
 
-        const result = await generatePersonalityReport(facialFeatures, surveyAnswers, gender, (progress) => {
+        const result = await generatePersonalityReport(facialFeatures, surveyAnswers, gender, language, (progress) => {
           setProgress(Math.min(99, 50 + (progress * 0.5)));
           if (progress > 80) {
             setStatusText(t('analysis', 'generatingReport'));
@@ -59,7 +59,7 @@ export default function AnalysisPage() {
     };
 
     analyze();
-  }, [setLocation, t]);
+  }, [setLocation, t, language]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">

@@ -183,8 +183,8 @@ export const translations = {
       twitter: "Twitter",
       facebook: "Facebook",
       instagram: "Instagram",
-      male: "Female",
-      female: "Male",
+      male: "Male",
+      female: "Female",
     },
     history: {
       title: "Test History",

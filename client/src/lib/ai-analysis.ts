@@ -111,6 +111,7 @@ export async function generatePersonalityReport(
   facialFeatures: FacialFeatures,
   surveyAnswers: SurveyAnswer[],
   gender: Gender,
+  language: 'ko' | 'en' = 'ko',
   progressCallback?: (progress: number) => void
 ): Promise<AnalysisResult> {
   const emotionScore = calculateEmotionScore(surveyAnswers);
@@ -125,6 +126,7 @@ export async function generatePersonalityReport(
     facialFeatures,
     gender,
     traitScores,
+    language,
     progressCallback
   );
 
@@ -146,9 +148,12 @@ async function generateReportWithAI(
   facialFeatures: FacialFeatures,
   gender: Gender,
   traitScores: TraitScores,
+  language: 'ko' | 'en',
   progressCallback?: (progress: number) => void
 ): Promise<PersonalityReport> {
-  const title = `당신은 ${animalEmojis[animalType]} ${animalNames[animalType]} ${personalityNames[personalityType]}입니다`;
+  const title = language === 'ko' 
+    ? `당신은 ${animalEmojis[animalType]} ${animalNames[animalType]} ${personalityNames[personalityType]}입니다`
+    : `You are ${animalEmojis[animalType]} ${animalType.charAt(0).toUpperCase() + animalType.slice(1)}-${personalityType.charAt(0).toUpperCase() + personalityType.slice(1)} type`;
 
   try {
     if (progressCallback) progressCallback(50);
@@ -160,7 +165,7 @@ async function generateReportWithAI(
     });
 
     if (llmEngine) {
-      const prompt = createPrompt(personalityType, animalType, emotionScore, facialFeatures);
+      const prompt = createPrompt(personalityType, animalType, emotionScore, facialFeatures, language);
       
       if (progressCallback) progressCallback(80);
       
@@ -173,21 +178,41 @@ async function generateReportWithAI(
       if (progressCallback) progressCallback(90);
 
       const generatedText = response.choices[0]?.message?.content || "";
-      return parseAIResponse(generatedText, title, personalityType, gender, traitScores);
+      return parseAIResponse(generatedText, title, personalityType, gender, traitScores, language);
     }
   } catch (error) {
     console.error("WebLLM generation failed, using fallback:", error);
   }
 
-  return generateFallbackReport(personalityType, animalType, title, gender, traitScores);
+  return generateFallbackReport(personalityType, animalType, title, gender, traitScores, language);
 }
 
 function createPrompt(
   personalityType: PersonalityType,
   animalType: AnimalType,
   emotionScore: number,
-  facialFeatures: FacialFeatures
+  facialFeatures: FacialFeatures,
+  language: 'ko' | 'en'
 ): string {
+  if (language === 'en') {
+    return `You are a physiognomy expert and psychological analyst. Based on the following data, describe the user's appearance and personality in warm and poetic English.
+
+[Input Data]
+Type: ${personalityType}
+Animal Type: ${animalType}
+Emotion Score: ${(emotionScore * 100).toFixed(0)}%
+Facial Features: Eyebrow angle ${facialFeatures.eyebrowAngle.toFixed(1)}°, Lip curvature ${facialFeatures.lipCurvature.toFixed(2)}, Face width ratio ${facialFeatures.faceWidthRatio.toFixed(2)}
+
+[Output Format]
+1. Personality Summary (3-5 sentences)
+2. Physiognomic Features (3-5 sentences)
+3. Three Keywords (with emoji, e.g., ✨ #Insight)
+4. Dating Style (1 sentence)
+5. One-liner Summary
+
+Please clearly separate each section.`;
+  }
+  
   return `당신은 관상학자이자 심리 분석 전문가입니다. 다음 데이터를 바탕으로 사용자의 인상과 성격을 따뜻하고 서정적인 한국어로 설명해주세요.
 
 [입력 데이터]
@@ -206,8 +231,8 @@ function createPrompt(
 각 섹션을 명확히 구분하여 작성해주세요.`;
 }
 
-function calculateRecommendedAnimals(personalityType: PersonalityType, gender: Gender): AnimalCompatibility[] {
-  const animalCompatibilityData: Record<PersonalityType, Record<AnimalType, { score: number; reason: string }>> = {
+function calculateRecommendedAnimals(personalityType: PersonalityType, gender: Gender, language: 'ko' | 'en' = 'ko'): AnimalCompatibility[] {
+  const animalCompatibilityDataKo: Record<PersonalityType, Record<AnimalType, { score: number; reason: string }>> = {
     teto: {
       dog: { score: 68, reason: "충성스럽고 신뢰할 수 있는 관계를 만들 수 있어요" },
       cat: { score: 88, reason: "서로의 독립성을 존중하며 안정적인 관계를 유지해요" },
@@ -234,7 +259,34 @@ function calculateRecommendedAnimals(personalityType: PersonalityType, gender: G
     },
   };
 
-  const compatibilityList = animalCompatibilityData[personalityType];
+  const animalCompatibilityDataEn: Record<PersonalityType, Record<AnimalType, { score: number; reason: string }>> = {
+    teto: {
+      dog: { score: 68, reason: "Builds loyal and trustworthy relationships" },
+      cat: { score: 88, reason: "Maintains stable relationships respecting independence" },
+      fox: { score: 85, reason: "Understands each other with smart strategic thinking" },
+      rabbit: { score: 52, reason: "Harmonizes calmness and sensitivity" },
+      bear: { score: 92, reason: "Forms reliable and steady partnerships" },
+      deer: { score: 72, reason: "Elegance and rational judgment blend well" },
+    },
+    tegen: {
+      dog: { score: 90, reason: "Bright positive energy creates perfect harmony" },
+      cat: { score: 75, reason: "Balanced relationship complements each other" },
+      fox: { score: 95, reason: "Flexible thinking and adaptability are perfect match" },
+      rabbit: { score: 82, reason: "Creates gentle and warm relationships" },
+      bear: { score: 78, reason: "Stability and vitality harmonize well" },
+      deer: { score: 88, reason: "Forms elegant and harmonious relationships" },
+    },
+    egen: {
+      dog: { score: 96, reason: "Warm heart and loyalty create perfect harmony" },
+      cat: { score: 58, reason: "Understanding and respecting emotions" },
+      fox: { score: 65, reason: "Intelligence and emotions find balance" },
+      rabbit: { score: 93, reason: "Pure and warm hearts deeply empathize" },
+      bear: { score: 85, reason: "Creates cozy and stable relationships" },
+      deer: { score: 89, reason: "Delicate and elegant emotions align well" },
+    },
+  };
+
+  const compatibilityList = language === 'en' ? animalCompatibilityDataEn[personalityType] : animalCompatibilityDataKo[personalityType];
   const genderBonus = gender === "male" ? { dog: 3, rabbit: -5, bear: 4, cat: -2 } : { cat: 4, deer: 5, fox: 3, dog: -2 };
 
   const animalScores: AnimalCompatibility[] = Object.entries(compatibilityList).map(([animal, data]) => ({
@@ -246,7 +298,7 @@ function calculateRecommendedAnimals(personalityType: PersonalityType, gender: G
   return animalScores.sort((a, b) => b.score - a.score).slice(0, 3);
 }
 
-function calculateCompatibilityScores(personalityType: PersonalityType, gender: Gender): CompatibilityScore {
+function calculateCompatibilityScores(personalityType: PersonalityType, gender: Gender, language: 'ko' | 'en' = 'ko'): CompatibilityScore {
   const baseScores: Record<PersonalityType, { teto: number; tegen: number; egen: number }> = {
     teto: { teto: 72, tegen: 88, egen: 35 },
     tegen: { teto: 86, tegen: 78, egen: 82 },
@@ -256,7 +308,7 @@ function calculateCompatibilityScores(personalityType: PersonalityType, gender: 
   const genderAdjustment = gender === "male" ? { teto: -6, tegen: 1, egen: 6 } : { teto: 6, tegen: -1, egen: -6 };
   
   const scores = baseScores[personalityType];
-  const recommendedAnimals = calculateRecommendedAnimals(personalityType, gender);
+  const recommendedAnimals = calculateRecommendedAnimals(personalityType, gender, language);
 
   return {
     teto: Math.max(30, Math.min(95, scores.teto + genderAdjustment.teto + Math.floor(Math.random() * 5 - 2))),
@@ -266,7 +318,7 @@ function calculateCompatibilityScores(personalityType: PersonalityType, gender: 
   };
 }
 
-function parseAIResponse(text: string, title: string, personalityType: PersonalityType, gender: Gender, traitScores: TraitScores): PersonalityReport {
+function parseAIResponse(text: string, title: string, personalityType: PersonalityType, gender: Gender, traitScores: TraitScores, language: 'ko' | 'en'): PersonalityReport {
   console.log("Parsing AI response:", text.substring(0, 200));
   
   const sections = text.split('\n\n');
@@ -277,31 +329,43 @@ function parseAIResponse(text: string, title: string, personalityType: Personali
   let datingStyle = "";
   let oneLiner = "";
 
+  const patterns = language === 'en' 
+    ? {
+        personality: /^[0-9]\.\s*personality/i,
+        physiognomy: /^[0-9]\.\s*(physiognomic|features)/i,
+        keywords: /^[0-9]\.\s*keywords/i,
+        dating: /^[0-9]\.\s*dating/i,
+        oneLiner: /^[0-9]\.\s*one[-\s]?liner/i
+      }
+    : {
+        personality: /^[0-9]\.\s*성격/i,
+        physiognomy: /^[0-9]\.\s*(관상|특징)/i,
+        keywords: /^[0-9]\.\s*키워드/i,
+        dating: /^[0-9]\.\s*연애/i,
+        oneLiner: /^[0-9]\.\s*한줄/i
+      };
+
   sections.forEach((section) => {
     const cleanSection = section.trim();
     
-    if (cleanSection.match(/^[0-9]\.\s*성격/i)) {
-      personalitySummary = cleanSection.replace(/^[0-9]\.\s*성격\s*요약?[:：]?\s*/i, "").trim();
-    } else if (cleanSection.match(/^[0-9]\.\s*관상/i) || cleanSection.match(/^[0-9]\.\s*특징/i)) {
-      physiognomyAnalysis = cleanSection.replace(/^[0-9]\.\s*(관상.*특징|특징|관상)[:：]?\s*/i, "").trim();
-    } else if (cleanSection.match(/^[0-9]\.\s*키워드/i)) {
-      const keywordText = cleanSection.replace(/^[0-9]\.\s*키워드.*[:：]?\s*/i, "");
+    if (cleanSection.match(patterns.personality)) {
+      personalitySummary = cleanSection.replace(/^[0-9]\.\s*(성격\s*요약?|personality\s*summary?)[:：]?\s*/i, "").trim();
+    } else if (cleanSection.match(patterns.physiognomy)) {
+      physiognomyAnalysis = cleanSection.replace(/^[0-9]\.\s*(관상.*특징|특징|관상|physiognomic.*features|features)[:：]?\s*/i, "").trim();
+    } else if (cleanSection.match(patterns.keywords)) {
+      const keywordText = cleanSection.replace(/^[0-9]\.\s*(키워드.*|keywords.*)[:：]?\s*/i, "");
       keywords = keywordText.split(/[,\n]/).map(k => k.trim()).filter(k => k && k.length > 0).slice(0, 3);
-    } else if (cleanSection.match(/^[0-9]\.\s*연애/i)) {
-      datingStyle = cleanSection.replace(/^[0-9]\.\s*연애.*[:：]?\s*/i, "").trim();
-    } else if (cleanSection.match(/^[0-9]\.\s*한줄/i)) {
-      oneLiner = cleanSection.replace(/^[0-9]\.\s*한줄.*[:：]?\s*/i, "").replace(/["""]/g, "").trim();
+    } else if (cleanSection.match(patterns.dating)) {
+      datingStyle = cleanSection.replace(/^[0-9]\.\s*(연애.*|dating.*)[:：]?\s*/i, "").trim();
+    } else if (cleanSection.match(patterns.oneLiner)) {
+      oneLiner = cleanSection.replace(/^[0-9]\.\s*(한줄.*|one[-\s]?liner.*)[:：]?\s*/i, "").replace(/["""]/g, "").trim();
     }
   });
 
   const hasInvalidContent = (str: string) => {
-    const invalidPatterns = [
-      /명확히 구분하여 작성/,
-      /출력 형식/,
-      /입력 데이터/,
-      /반드시.*명확/,
-      /섹션을.*구분/
-    ];
+    const invalidPatterns = language === 'en'
+      ? [/clearly separate/i, /output format/i, /input data/i, /must.*clearly/i, /section.*separate/i]
+      : [/명확히 구분하여 작성/, /출력 형식/, /입력 데이터/, /반드시.*명확/, /섹션을.*구분/];
     return invalidPatterns.some(pattern => pattern.test(str));
   };
 
@@ -318,24 +382,39 @@ function parseAIResponse(text: string, title: string, personalityType: Personali
     console.log("AI parsing failed, using fallback report");
     return generateFallbackReport(
       personalityType,
-      title.includes("강아지") ? "dog" : title.includes("고양이") ? "cat" : 
-      title.includes("여우") ? "fox" : title.includes("토끼") ? "rabbit" : 
-      title.includes("곰") ? "bear" : "deer",
+      title.includes("강아지") || title.toLowerCase().includes("dog") ? "dog" : 
+      title.includes("고양이") || title.toLowerCase().includes("cat") ? "cat" : 
+      title.includes("여우") || title.toLowerCase().includes("fox") ? "fox" : 
+      title.includes("토끼") || title.toLowerCase().includes("rabbit") ? "rabbit" : 
+      title.includes("곰") || title.toLowerCase().includes("bear") ? "bear" : "deer",
       title,
       gender,
-      traitScores
+      traitScores,
+      language
     );
   }
 
-  const compatibilityScores = calculateCompatibilityScores(personalityType, gender);
+  const compatibilityScores = calculateCompatibilityScores(personalityType, gender, language);
+
+  const defaults = language === 'en' 
+    ? {
+        physiognomy: "You have your own unique charm.",
+        keywords: ["✨ Unique", "💫 Charming", "🌟 Individual"],
+        oneLiner: "You possess your own distinct charm."
+      }
+    : {
+        physiognomy: "당신만의 독특한 매력을 지니고 있습니다.",
+        keywords: ["✨ 특별함", "💫 매력", "🌟 개성"],
+        oneLiner: "당신만의 독특한 매력을 지녔습니다."
+      };
 
   return {
     title,
     personalitySummary,
-    physiognomyAnalysis: physiognomyAnalysis || "당신만의 독특한 매력을 지니고 있습니다.",
-    keywords: keywords.length > 0 ? keywords : ["✨ 특별함", "💫 매력", "🌟 개성"],
+    physiognomyAnalysis: physiognomyAnalysis || defaults.physiognomy,
+    keywords: keywords.length > 0 ? keywords : defaults.keywords,
     datingStyle,
-    oneLiner: oneLiner || "당신만의 독특한 매력을 지녔습니다.",
+    oneLiner: oneLiner || defaults.oneLiner,
     compatibilityScores,
     traitScores,
   };
@@ -346,7 +425,8 @@ function generateFallbackReport(
   animalType: AnimalType,
   title: string,
   gender: Gender,
-  traitScores: TraitScores
+  traitScores: TraitScores,
+  language: 'ko' | 'en' = 'ko'
 ): PersonalityReport {
 
   const personalitySummaries: Record<PersonalityType, string[]> = {
@@ -477,7 +557,7 @@ function generateFallbackReport(
   const keywords = keywordSets[personalityType][animalType];
   const datingStyle = datingStyles[personalityType][animalType];
   const oneLiner = oneLiners[personalityType][Math.floor(Math.random() * oneLiners[personalityType].length)];
-  const compatibilityScores = calculateCompatibilityScores(personalityType, gender);
+  const compatibilityScores = calculateCompatibilityScores(personalityType, gender, language);
 
   return {
     title,
