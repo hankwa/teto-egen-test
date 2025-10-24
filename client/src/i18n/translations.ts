@@ -218,6 +218,24 @@ export const translations = {
       title: "404 Page Not Found",
       subtitle: "Did you forget to add the page to the router?",
     },
+    surveyQuestions: {
+      q1: "I enjoy meeting new people and it energizes me",
+      q2: "When making decisions, I prioritize logic and analysis over emotions",
+      q3: "I prefer to make plans and follow them",
+      q4: "I'm good at sensing others' emotions and atmosphere",
+      q5: "I feel energized when I'm with many people",
+      q6: "I value objective facts and data when solving problems",
+      q7: "I prefer scheduled activities over spontaneous ones",
+      q8: "I'm very careful not to hurt others' feelings",
+      q9: "I feel lonely when I have too much alone time",
+      q10: "In debates, I value logical validity over others' emotions",
+    },
+    answerOptions: {
+      A: "Strongly Agree",
+      B: "Agree",
+      C: "Disagree",
+      D: "Strongly Disagree",
+    },
   },
 } as const;
 

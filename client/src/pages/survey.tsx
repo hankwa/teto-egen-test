@@ -85,7 +85,7 @@ export default function SurveyPage() {
                   className="text-lg md:text-xl font-medium text-foreground text-center leading-relaxed"
                   data-testid={`text-question-${currentQuestion + 1}`}
                 >
-                  {surveyQuestions[currentQuestion].question}
+                  {t('surveyQuestions', `q${surveyQuestions[currentQuestion].id}`)}
                 </h2>
 
                 <div className="space-y-3">
@@ -98,7 +98,7 @@ export default function SurveyPage() {
                       onClick={() => handleAnswer(option.value)}
                       data-testid={`button-answer-${option.value.toLowerCase()}-q${currentQuestion + 1}`}
                     >
-                      {option.label}
+                      {t('answerOptions', option.value)}
                     </Button>
                   ))}
                 </div>

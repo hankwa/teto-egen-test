@@ -1,29 +1,32 @@
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Legend } from 'recharts';
 import type { TraitScores } from '@shared/schema';
+import { useI18n } from '@/i18n/LanguageContext';
 
 interface TraitRadarChartProps {
   scores: TraitScores;
 }
 
 export function TraitRadarChart({ scores }: TraitRadarChartProps) {
+  const { t } = useI18n();
+
   const data = [
     {
-      trait: '외향성',
+      trait: t('types', 'traits.extraversion'),
       score: scores.extraversion,
       fullMark: 100,
     },
     {
-      trait: '감각형',
+      trait: t('types', 'traits.sensing'),
       score: scores.sensing,
       fullMark: 100,
     },
     {
-      trait: '사고형',
+      trait: t('types', 'traits.thinking'),
       score: scores.thinking,
       fullMark: 100,
     },
     {
-      trait: '계획형',
+      trait: t('types', 'traits.judging'),
       score: scores.judging,
       fullMark: 100,
     },
@@ -43,7 +46,7 @@ export function TraitRadarChart({ scores }: TraitRadarChartProps) {
           tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
         />
         <Radar
-          name="특성 점수"
+          name={t('types', 'traitScore')}
           dataKey="score"
           stroke="hsl(var(--primary))"
           fill="hsl(var(--primary))"
